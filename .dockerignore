@@ -1,0 +1,77 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.mo
+*.egg-info
+*.db
+db.sqlite3
+
+# =========================
+# Virtual Environments
+# =========================
+env/
+venv/
+.venv/
+
+# =========================
+# Environment / Secrets
+# =========================
+.env
+
+# =========================
+# IDEs & Editors
+# =========================
+.idea/
+.idea/workspace.xml
+.project
+.pydevproject
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+
+# =========================
+# Cache & Build Artifacts
+# =========================
+.cache/
+.sass-cache/
+dist/
+stats/
+logs/
+
+# =========================
+# Node / Frontend
+# =========================
+node_modules/
+src/node_modules/
+
+# =========================
+# Media & Static Files
+# =========================
+web/media/
+web/static/CACHE/
+
+# =========================
+# Docs
+# =========================
+docs/
+
+# =========================
+# Vagrant
+# =========================
+.vagrant/
+
+# =========================
+# Git & Docker
+# =========================
+.git/
+Dockerfile
+
+# =========================
+# Project specific
+# =========================
+src/{{ project_name }}/settings/local.py
