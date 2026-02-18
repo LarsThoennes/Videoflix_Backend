@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <body style="font-family: Arial; background-color:#f4f4f4; padding:20px;">
+    <div style="background:white; padding:30px; border-radius:8px;">
+      <h2>Willkommen bei Videoflix 🎬</h2>
+
+      <p>Hallo {{ user.email }},</p>
+
+      <p>
+        Vielen Dank für Ihre Registrierung.
+        Bitte bestätigen Sie Ihr Konto:
+      </p>
+
+      <p>
+        <a href="{{ activation_link }}"
+           style="background:#4CAF50;
+                  color:white;
+                  padding:12px 20px;
+                  text-decoration:none;
+                  border-radius:5px;">
+          Konto aktivieren
+        </a>
+      </p>
+
+      <p>Falls der Button nicht funktioniert:</p>
+      <p>{{ activation_link }}</p>
+
+    </div>
+  </body>
+</html>
