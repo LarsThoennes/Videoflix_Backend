@@ -2,8 +2,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 
-def send_activation_email(user, token):
-    activation_link = f"http://localhost:8000/api/activate/?token={token}"
+def send_activation_email(user, token, uidb64):
+    activation_link = (f"http://localhost:8000/api/activate/{uidb64}/{token}/")
 
     subject = "Willkommen bei Videoflix"
 
