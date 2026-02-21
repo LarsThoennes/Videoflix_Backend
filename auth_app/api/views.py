@@ -2,14 +2,14 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.db import transaction
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer, CustomTokenObtainSerializer
 from ..services.email_service import send_activation_email
-from ..models import UserProfile
 
         
 class RegistrationView(APIView):
@@ -21,11 +21,8 @@ class RegistrationView(APIView):
         if serializer.is_valid():
             with transaction.atomic(): 
                 saved_account = serializer.save()
-
-                UserProfile.objects.create(
-                    user=saved_account,
-                    is_active=False
-                )
+                saved_account.is_active = False
+                saved_account.save()
 
                 uidb64 = urlsafe_base64_encode(force_bytes(saved_account.pk))
                 token = default_token_generator.make_token(saved_account)
@@ -50,23 +47,20 @@ class ActivateUserProfileView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, uidb64, token):
-        
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
 
             if default_token_generator.check_token(user, token):
 
-                profile = UserProfile.objects.get(user=user)
-
-                if profile.is_active == True:
+                if user.is_active:
                     return Response(
-                    {"message": "Dieser Link wurde bereits verwendet. Ihr Konto ist aktiviert."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                        {"message": "Dieser Link wurde bereits verwendet. Ihr Konto ist aktiviert."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
-                profile.is_active = True
-                profile.save()
+                user.is_active = True
+                user.save()
 
                 return Response(
                     {"message": "Account successfully activated."},
@@ -83,3 +77,46 @@ class ActivateUserProfileView(APIView):
                 {"error": "Activation failed."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class LoginView(TokenObtainPairView):
+    permission_classes = [AllowAny]
+    serializer_class = CustomTokenObtainSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        access = serializer.validated_data["access"]
+        refresh = serializer.validated_data["refresh"]
+
+        user = serializer.user 
+
+        response = Response(
+            {
+                "detail": "Login successful",
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+
+        response.set_cookie(
+            key='access_token',
+            value=str(access),
+            httponly=True,
+            secure=False,
+            samesite='Lax',
+        )
+
+        response.set_cookie(
+            key='refresh_token',
+            value=str(refresh),
+            httponly=True,
+            secure=False,
+            samesite='Lax',
+        )
+
+        return response
