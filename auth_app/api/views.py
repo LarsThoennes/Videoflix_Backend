@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.db import transaction
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -43,7 +43,7 @@ class RegistrationView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ActivateUserProfileView(APIView):
+class ActivateUserView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, uidb64, token):
@@ -118,5 +118,27 @@ class LoginView(TokenObtainPairView):
             secure=False,
             samesite='Lax',
         )
+
+        return response
+    
+class LogoutView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if not refresh_token:
+            return Response(
+                {"error": "No refresh token provided."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        response = Response(
+            {"detail": "Logout successful! All tokens will be deleted. Refresh token is now invalid."},
+            status=status.HTTP_200_OK
+        )
+
+        response.delete_cookie("access_token", path="/")
+        response.delete_cookie("refresh_token", path="/")
 
         return response
