@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
@@ -37,3 +39,30 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.set_password(pw)
         account.save()
         return account
+
+class CustomTokenObtainSerializer(TokenObtainPairSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields.pop("username", None)
+
+        self.fields["email"] = serializers.EmailField(required=True)
+
+    def validate(self, attrs):
+       username = attrs.get("email")
+       password = attrs.get("password")
+
+       try:
+           user = User.objects.get(email=username)
+       except User.DoesNotExist:
+           raise AuthenticationFailed("Ungültige Anmeldedaten")
+
+       if not user.check_password(password):
+           raise AuthenticationFailed("Ungültige Anmeldedaten")
+
+       data = super().validate({
+           "username": user.username,
+           "password": password
+       })
+
+       return data
