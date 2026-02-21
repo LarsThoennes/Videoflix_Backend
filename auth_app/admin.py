@@ -1,10 +1,11 @@
 from django.contrib import admin
-from .models import UserProfile
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 
 
-class UserProfileExtension(admin.ModelAdmin):
-    list_filter= ["id","user", "is_active"]
-    list_display = ["id","user", "is_active"]
-    readonly_fields = ["id", "is_active"]
+class CustomUserAdmin(UserAdmin):
+    list_display = ("id", "username", "email", "is_active", "is_staff")
 
-admin.site.register(UserProfile, UserProfileExtension)
+
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
