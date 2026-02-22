@@ -3,6 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
 
@@ -66,3 +67,26 @@ class CustomTokenObtainSerializer(TokenObtainPairSerializer):
        })
 
        return data
+    
+class PasswordConfirmSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+    
+    def validate(self, attrs):
+        new_password = attrs.get("new_password")
+        confirm_password = attrs.get("confirm_password")
+
+        if new_password != confirm_password:
+            raise serializers.ValidationError("Passwords do not match")
+
+        validate_password(new_password, self.instance)
+
+        return attrs
+
+    def save(self):
+        user = self.instance
+        password = self.validated_data["new_password"]
+        user.set_password(password)
+        user.save()
+
+        return user
