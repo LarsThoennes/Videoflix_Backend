@@ -9,7 +9,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
 from .serializers import RegistrationSerializer, CustomTokenObtainSerializer
-from ..services.email_service import send_activation_email
+from ..services.email_service import send_activation_email, send_reset_password_email
 
         
 class RegistrationView(APIView):
@@ -55,7 +55,7 @@ class ActivateUserView(APIView):
 
                 if user.is_active:
                     return Response(
-                        {"message": "Dieser Link wurde bereits verwendet. Ihr Konto ist aktiviert."},
+                        {"message": "This link has expired."},
                         status=status.HTTP_400_BAD_REQUEST
                     )
 
@@ -170,3 +170,28 @@ class TokenRefreshView(TokenRefreshView):
         )
 
         return response
+    
+class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+
+        if not email:
+            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(email=email)
+
+            if user.is_active:
+                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                send_reset_password_email(user, token, uidb64)
+
+        except User.DoesNotExist:
+            pass 
+
+        return Response(
+            {"detail": "If an account with this email exists, a password reset email has been sent."},
+            status=status.HTTP_200_OK
+        )
