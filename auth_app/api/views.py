@@ -8,7 +8,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
-from .serializers import RegistrationSerializer, CustomTokenObtainSerializer
+from .serializers import RegistrationSerializer, CustomTokenObtainSerializer, PasswordConfirmSerializer
 from ..services.email_service import send_activation_email, send_reset_password_email
 
         
@@ -195,3 +195,42 @@ class PasswordResetView(APIView):
             {"detail": "If an account with this email exists, a password reset email has been sent."},
             status=status.HTTP_200_OK
         )
+    
+class PasswordConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+
+            if not default_token_generator.check_token(user, token):
+                return Response(
+                    {"error": "Invalid or expired token."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if not user.is_active:
+                return Response(
+                    {"error": "User is not active."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            serializer = PasswordConfirmSerializer(
+                instance=user,
+                data=request.data
+            )
+
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response(
+                {"detail": "Your password has been successfully reset."},
+                status=status.HTTP_200_OK
+            )
+
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response(
+                {"error": "Password Confirmation failed."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
