@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.db import transaction
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -9,7 +9,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
 from .serializers import RegistrationSerializer, CustomTokenObtainSerializer, PasswordConfirmSerializer
-from ..services.email_service import send_activation_email, send_reset_password_email
+from ..services.email_service import send_reset_password_email
 
         
 class RegistrationView(APIView):
@@ -24,18 +24,13 @@ class RegistrationView(APIView):
                 saved_account.is_active = False
                 saved_account.save()
 
-                uidb64 = urlsafe_base64_encode(force_bytes(saved_account.pk))
-                token = default_token_generator.make_token(saved_account)
-
-                send_activation_email(saved_account, token, uidb64)
-
             return Response(
                 {
                     "user": {
                         "id": saved_account.pk,
                         "email": saved_account.email,
                     },
-                    "token": token,
+                    "token": "auth_token",
                 },
                 status=status.HTTP_201_CREATED
             )
