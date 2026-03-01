@@ -40,4 +40,11 @@ EOF
 
 python manage.py rqworker default &
 
-exec gunicorn core.wsgi:application --bind 0.0.0.0:8000 --reload
+exec gunicorn core.wsgi:application \
+    --bind 0.0.0.0:8000 \
+    --workers 3 \
+    --threads 2 \
+    --timeout 180 \
+    --graceful-timeout 180 \
+    --max-requests 1000 \
+    --max-requests-jitter 50
