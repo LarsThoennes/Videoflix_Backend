@@ -2,14 +2,50 @@ from django.db import models
 from django.utils import timezone
 
 
+from django.db import models
+from django.utils import timezone
+
+
+def thumbnail_upload_path(instance, filename):
+    return f'videos/thumbnails/{instance.id}/{filename}'
+
+
+def video_upload_path(instance, filename):
+    return f'videos/originals/{instance.id}/{filename}'
+
+
 class Video(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    thumbnail_url = models.URLField()
     category = models.CharField(max_length=100)
 
-    original_file = models.FileField(upload_to='videos/originals/', null=True, blank=True)
+    thumbnail_url = models.ImageField(
+        upload_to=thumbnail_upload_path,
+        null=True,
+        blank=True
+    )
+
+    original_file = models.FileField(
+        upload_to=video_upload_path,
+        null=True,
+        blank=True
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            thumbnail = self.thumbnail_url
+            video = self.original_file
+
+            self.thumbnail_url = None
+            self.original_file = None
+
+            super().save(*args, **kwargs)
+
+            self.thumbnail_url = thumbnail
+            self.original_file = video
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
