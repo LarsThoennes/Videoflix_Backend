@@ -6,7 +6,7 @@ logo_url = f"{settings.SITE_URL}/static/images/logo_icon.svg"
 homepage_url = settings.SITE_URL
 
 def send_activation_email(user, token, uidb64):
-    activation_link = (f"http://localhost:8000/api/activate/{uidb64}/{token}/")
+    activation_link = (f"{settings.SITE_URL}/activate-account/{uidb64}/{token}/")
 
     subject = "Confirm your email"
 
@@ -41,7 +41,7 @@ def send_activation_email(user, token, uidb64):
 
 
 def send_reset_password_email(user, token, uidb64):
-    reset_link = (f"http://localhost:8000/api/password_confirm/{uidb64}/{token}/")
+    reset_link = (f"{settings.SITE_URL}reset-password/{uidb64}/{token}/")
 
     subject = "Reset your Password"
 
@@ -57,7 +57,7 @@ def send_reset_password_email(user, token, uidb64):
         "emails/reset_password_email.html",
         {
             "user": user,
-            "activation_link": reset_link,
+            "reset_link": reset_link,
             "logo_url": logo_url,
         },
     )
