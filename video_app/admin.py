@@ -16,4 +16,14 @@ class VideoFileInline(admin.TabularInline):
 
 @admin.register(Video)
 class VideoAdmin(ImportExportModelAdmin):
+    resource_class = VideoResource
+
+    list_display = (
+        "id",
+        "title",
+        "description",
+        "category",
+        "created_at",
+    )
+
     inlines = [VideoFileInline]
