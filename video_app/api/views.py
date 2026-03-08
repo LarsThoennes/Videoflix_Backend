@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse, Http404, FileResponse
 from django.conf import settings
+from django.utils.text import slugify
 from ..models import Video
 from .serializers import VideoSerializer
 from ..permissions import IsStaff
@@ -36,6 +37,8 @@ class VideoMasterPlaylistView(APIView):
         
         if resolution not in ["480p", "720p", "1080p"]:
             raise Http404("Invalid resolution")
+        
+        slugify_title = slugify(video.title)
 
         manifest_path = os.path.join(
             settings.MEDIA_ROOT,
@@ -43,7 +46,7 @@ class VideoMasterPlaylistView(APIView):
             "processed",
             str(video.id),
             resolution,
-            f"{video.title}.m3u8"
+            f"{slugify_title}.m3u8"
         )
 
         if not os.path.exists(manifest_path):
