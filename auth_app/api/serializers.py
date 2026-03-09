@@ -8,6 +8,15 @@ from django.contrib.auth.password_validation import validate_password
 User = get_user_model()
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user registration.
+
+    This serializer handles:
+    - validating that the email address is unique
+    - validating that both password fields match
+    - securely hashing the user's password
+    - creating a new user account with the provided email
+    """
     confirmed_password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -22,7 +31,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             }
         }
 
-    def validate_repeated_password(self, value):
+    def validate_confirmed_password(self, value):
         password = self.initial_data.get('password')
         if password and value and password != value:
             raise serializers.ValidationError('Passwords do not match')
@@ -42,6 +51,15 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return account
 
 class CustomTokenObtainSerializer(TokenObtainPairSerializer):
+    """
+    Custom serializer for JWT authentication using email.
+
+    This serializer handles:
+    - replacing the default username field with an email field
+    - validating the user's email and password
+    - generating JWT access and refresh tokens
+    - returning authentication tokens for successful logins
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -69,6 +87,14 @@ class CustomTokenObtainSerializer(TokenObtainPairSerializer):
        return data
     
 class PasswordConfirmSerializer(serializers.Serializer):
+    """
+    Serializer for confirming and updating a user's password.
+
+    This serializer handles:
+    - validating that the new password and confirmation match
+    - applying Django's built-in password validation rules
+    - securely updating the user's password
+    """
     new_password = serializers.CharField(write_only=True, required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
     

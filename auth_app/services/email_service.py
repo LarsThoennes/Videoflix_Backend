@@ -6,6 +6,15 @@ logo_url = f"{settings.SITE_URL}/static/images/logo_icon.svg"
 homepage_url = settings.SITE_URL
 
 def send_activation_email(user, token, uidb64):
+    """
+    Send an account activation email to a newly registered user.
+
+    This function handles:
+    - generating the activation link containing the encoded user ID and token
+    - rendering the HTML email template
+    - providing a plain text fallback version
+    - sending a multipart email (text + HTML) to the user's email address
+    """
     activation_link = (f"{settings.SITE_URL}/activate-account/{uidb64}/{token}/")
 
     subject = "Confirm your email"
@@ -41,6 +50,15 @@ def send_activation_email(user, token, uidb64):
 
 
 def send_reset_password_email(user, token, uidb64):
+    """
+    Send a password reset email to a user.
+
+    This function handles:
+    - generating a secure password reset link with token and encoded user ID
+    - rendering the HTML password reset email template
+    - providing a plain text fallback version
+    - sending a multipart email (text + HTML) to the user's email address
+    """
     reset_link = (f"{settings.SITE_URL}reset-password/{uidb64}/{token}/")
 
     subject = "Reset your Password"

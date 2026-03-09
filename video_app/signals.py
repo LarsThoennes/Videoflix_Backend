@@ -6,6 +6,14 @@ from .tasks import convert_video
 
 @receiver(post_save, sender=Video)
 def video_post_save(sender, instance, created, **kwargs):
+    """
+    Signal handler triggered after a Video instance is saved.
+
+    This signal handles:
+    - checking if an original video file exists
+    - enqueueing a background task for video conversion
+    - processing the video asynchronously using django-rq
+    """
     if not instance.original_file:
         return
     queue = django_rq.get_queue('default')

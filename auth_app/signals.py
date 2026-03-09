@@ -10,6 +10,15 @@ from .services.email_service import send_activation_email
 
 @receiver(post_save, sender=User)
 def send_activation_email_signal(sender, instance, created, **kwargs):
+    """
+    Signal handler for sending activation emails.
+
+    This signal handles:
+    - detecting when a new User instance is created
+    - generating a secure activation token
+    - encoding the user ID for safe use in URLs
+    - sending the activation email after the database transaction is committed
+    """
     if created:
 
         def send_email():

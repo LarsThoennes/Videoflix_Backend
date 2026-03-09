@@ -13,6 +13,15 @@ from ..services.email_service import send_reset_password_email
 
         
 class RegistrationView(APIView):
+    """
+    API endpoint for user registration.
+
+    This view handles:
+    - validating incoming registration data
+    - creating a new user account
+    - marking the account as inactive until email confirmation
+    - returning basic user information after successful registration
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -39,6 +48,15 @@ class RegistrationView(APIView):
 
 
 class ActivateUserView(APIView):
+    """
+    API endpoint for activating user accounts.
+
+    This view handles:
+    - decoding the user ID from the activation URL
+    - validating the activation token
+    - activating the user account
+    - returning appropriate success or error responses
+    """
     permission_classes = [AllowAny]
 
     def get(self, request, uidb64, token):
@@ -75,6 +93,15 @@ class ActivateUserView(APIView):
 
 
 class LoginView(TokenObtainPairView):
+    """
+    API endpoint for user authentication.
+
+    This view handles:
+    - validating user login credentials
+    - generating JWT access and refresh tokens
+    - storing the tokens securely in HTTP-only cookies
+    - returning basic user information after successful login
+    """
     permission_classes = [AllowAny]
     serializer_class = CustomTokenObtainSerializer
 
@@ -117,6 +144,14 @@ class LoginView(TokenObtainPairView):
         return response
     
 class LogoutView(APIView):
+    """
+    API endpoint for logging out users.
+
+    This view handles:
+    - retrieving the refresh token from cookies
+    - deleting authentication cookies
+    - returning a confirmation response after logout
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -139,6 +174,15 @@ class LogoutView(APIView):
         return response
     
 class TokenRefreshView(TokenRefreshView):
+    """
+    API endpoint for refreshing JWT access tokens.
+
+    This view handles:
+    - retrieving the refresh token from cookies
+    - validating the refresh token
+    - generating a new access token
+    - updating the access token cookie
+    """
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh_token')
 
@@ -167,6 +211,15 @@ class TokenRefreshView(TokenRefreshView):
         return response
     
 class PasswordResetView(APIView):
+    """
+    API endpoint for requesting a password reset.
+
+    This view handles:
+    - receiving the user's email address
+    - checking if an account exists for the email
+    - generating a secure reset token and encoded user ID
+    - sending a password reset email if the user exists
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -192,6 +245,15 @@ class PasswordResetView(APIView):
         )
     
 class PasswordConfirmView(APIView):
+    """
+    API endpoint for confirming and setting a new password.
+
+    This view handles:
+    - decoding the user ID from the reset URL
+    - validating the password reset token
+    - validating the new password using a serializer
+    - updating the user's password
+    """
     permission_classes = [AllowAny]
 
     def post(self, request, uidb64, token):

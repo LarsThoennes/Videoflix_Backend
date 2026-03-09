@@ -12,6 +12,14 @@ from .serializers import VideoSerializer
 from ..permissions import IsStaff
 
 class VideoListView(APIView):
+    """
+    API endpoint to list all videos.
+
+    This view handles:
+    - retrieving all Video instances from the database
+    - serializing the videos for API response
+    - returning a JSON list of videos with HTTP 200 OK
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -27,6 +35,15 @@ class VideoListView(APIView):
 
 
 class VideoMasterPlaylistView(APIView):
+    """
+    API endpoint to retrieve a master playlist (.m3u8) for a specific video.
+
+    This view handles:
+    - validating the video exists by ID
+    - checking that the requested resolution is valid (480p, 720p, 1080p)
+    - reading the HLS master playlist file from the filesystem
+    - returning the playlist content with the correct MIME type
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, movie_id, resolution):
@@ -61,6 +78,15 @@ class VideoMasterPlaylistView(APIView):
         )
     
 class VideoSegmentView(APIView):
+    """
+    API endpoint to retrieve individual HLS video segments (.ts).
+
+    This view handles:
+    - validating the video exists by ID
+    - checking that the requested resolution and segment filename are valid
+    - reading the segment file from the filesystem
+    - returning the segment as a video/MP2T file response
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, movie_id, resolution, segment):
@@ -93,6 +119,16 @@ class VideoSegmentView(APIView):
         )
     
 class DeleteVideoMasterPlaylistView(APIView):
+    """
+    API endpoint to delete a video and all associated files.
+
+    This view handles:
+    - validating that the user has staff permissions
+    - locating all processed, thumbnail, and original video files
+    - removing all related files and directories from the filesystem
+    - deleting the Video instance from the database
+    - returning HTTP 204 No Content on success
+    """
     permission_classes = [IsStaff]
 
     def delete(self, request, movie_id):

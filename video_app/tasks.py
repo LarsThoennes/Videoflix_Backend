@@ -6,6 +6,17 @@ from video_app.models import Video, VideoFile
 
 
 def convert_video(video_id):
+    """
+    Convert and process a video into multiple streaming resolutions.
+
+    This function handles:
+    - retrieving the original video file from the database
+    - generating safe file names using slugified titles
+    - converting the video into HLS format using FFmpeg
+    - creating multiple resolutions (480p, 720p, 1080p)
+    - storing the generated playlist files in the media directory
+    - updating or creating corresponding VideoFile database entries
+    """
     video = Video.objects.get(id=video_id)
     source = video.original_file.path
 
