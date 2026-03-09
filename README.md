@@ -96,6 +96,10 @@ This will start:
 - Backend server (Django)
 - PostgreSQL database
 - Redis queue
+## The server will start at:
+```bash
+http://127.0.0.1:8000/
+```
 ## 3. Apply migrations inside the container
 ```bash
 docker-compose exec web python manage.py migrate
