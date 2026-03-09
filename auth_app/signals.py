@@ -1,3 +1,4 @@
+import os
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
@@ -19,7 +20,7 @@ def send_activation_email_signal(sender, instance, created, **kwargs):
     - encoding the user ID for safe use in URLs
     - sending the activation email after the database transaction is committed
     """
-    if created:
+    if created and os.environ.get("DISABLE_EMAIL") != "True":
 
         def send_email():
             uidb64 = urlsafe_base64_encode(force_bytes(instance.pk))
