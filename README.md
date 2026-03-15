@@ -102,16 +102,36 @@ http://127.0.0.1:8000/
 ```
 ## 3. Apply migrations inside the container
 ```bash
-docker-compose exec web python manage.py migrate
+docker-compose exec web python manage.py makemmigrations
 ```
 ## 4. Apply migrations inside the container
 ```bash
 docker-compose exec web python manage.py migrate
 ```
-## 5. (Optional) Create a superuser inside the container:
+
+## 5. Access the Django Admin Panel
+You can open the admin interface at:
+```bash
+http://127.0.0.1:8000/admin
+```
+A superuser with the username admin is already available for login.
+
+## (Optional) 6. Create Super User
+To create a superuser, temporarily disable email sending.
+Set the environment variable DISABLE_EMAIL in your .env file to:
+```.env
+DISABLE_EMAIL=True
+```
+This prevents the activation email from being sent when the superuser is created.
+Then run:
 ```bash
 docker-compose exec web python manage.py createsuperuser
 ```
+After the superuser has been created, you can set the variable back to:
+```.env
+DISABLE_EMAIL=False
+```
+
 
 ## Frondend Repository 
 The corresponding frontend application for Videoflix can be found here:
