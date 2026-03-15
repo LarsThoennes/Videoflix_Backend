@@ -1,8 +1,9 @@
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
+from email.mime.image import MIMEImage
+import os
 
-logo_url = f"{settings.SITE_URL}/static/images/logo_icon.svg"
 homepage_url = settings.SITE_URL
 
 def send_activation_email(user, token, uidb64):
@@ -15,7 +16,8 @@ def send_activation_email(user, token, uidb64):
     - providing a plain text fallback version
     - sending a multipart email (text + HTML) to the user's email address
     """
-    activation_link = (f"{settings.SITE_URL}/activate-account/{uidb64}/{token}/")
+
+    activation_link = f"{settings.SITE_URL}pages/auth/activate.html?uid={uidb64}&token={token}"
 
     subject = "Confirm your email"
 
@@ -33,7 +35,6 @@ def send_activation_email(user, token, uidb64):
         {
             "user": user,
             "activation_link": activation_link,
-            "logo_url": logo_url,
             "homepage_url": homepage_url,
         },
     )
@@ -46,6 +47,14 @@ def send_activation_email(user, token, uidb64):
     )
 
     msg.attach_alternative(html_content, "text/html")
+
+    logo_path = os.path.join(settings.BASE_DIR, "staticfiles/images/logo_icon.png")
+    with open(logo_path, "rb") as f:
+        logo = MIMEImage(f.read())
+        logo.add_header("Content-ID", "<logo>")
+
+    msg.attach(logo)
+
     msg.send()
 
 
@@ -59,7 +68,7 @@ def send_reset_password_email(user, token, uidb64):
     - providing a plain text fallback version
     - sending a multipart email (text + HTML) to the user's email address
     """
-    reset_link = (f"{settings.SITE_URL}reset-password/{uidb64}/{token}/")
+    reset_link = (f"{settings.SITE_URL}/pages/auth/confirm_password.html?uid={uidb64}&token={token}")
 
     subject = "Reset your Password"
 
@@ -76,7 +85,6 @@ def send_reset_password_email(user, token, uidb64):
         {
             "user": user,
             "reset_link": reset_link,
-            "logo_url": logo_url,
         },
     )
 
@@ -88,4 +96,12 @@ def send_reset_password_email(user, token, uidb64):
     )
 
     msg.attach_alternative(html_content, "text/html")
+
+    logo_path = os.path.join(settings.BASE_DIR, "staticfiles/images/logo_icon.png")
+    with open(logo_path, "rb") as f:
+        logo = MIMEImage(f.read())
+        logo.add_header("Content-ID", "<logo>")
+
+    msg.attach(logo)
+
     msg.send()
