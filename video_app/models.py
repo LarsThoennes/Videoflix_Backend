@@ -1,9 +1,6 @@
 from django.db import models
 from django.utils import timezone
-
-
-from django.db import models
-from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
 def thumbnail_upload_path(instance, filename):
@@ -32,8 +29,15 @@ class Video(models.Model):
         blank=True
     )
 
+    def clean(self):
+        if not self.thumbnail_url:
+            raise ValidationError({"thumbnail_url": "Thumbnail is required."})
+
+        if not self.original_file:
+            raise ValidationError({"original_file": "Original video file is required."})
+
     def save(self, *args, **kwargs):
-        if not self.id:
+        if self.pk is None:
             thumbnail = self.thumbnail_url
             video = self.original_file
 
