@@ -3,11 +3,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from django.db import transaction
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
+from django.middleware.csrf import get_token
 from .serializers import RegistrationSerializer, CustomTokenObtainSerializer, PasswordConfirmSerializer
 from ..services.email_service import send_reset_password_email
 
@@ -141,17 +144,19 @@ class LoginView(TokenObtainPairView):
             samesite='Lax',
         )
 
+        csrf_token = get_token(request)
+
+        response.set_cookie(
+            key="csrftoken",
+            value=csrf_token,
+            httponly=False,
+            secure=False,
+            samesite="Lax",
+        )
+
         return response
     
 class LogoutView(APIView):
-    """
-    API endpoint for logging out users.
-
-    This view handles:
-    - retrieving the refresh token from cookies
-    - deleting authentication cookies
-    - returning a confirmation response after logout
-    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -163,13 +168,20 @@ class LogoutView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except TokenError:
+            pass
+
         response = Response(
-            {"detail": "Logout successful! All tokens will be deleted. Refresh token is now invalid."},
+            {"detail": "Logout successful!"},
             status=status.HTTP_200_OK
         )
 
         response.delete_cookie("access_token", path="/")
         response.delete_cookie("refresh_token", path="/")
+        response.delete_cookie("csrftoken", path="/")
 
         return response
     
