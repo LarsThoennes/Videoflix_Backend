@@ -114,7 +114,7 @@ You can open the admin interface at:
 ```bash
 http://127.0.0.1:8000/admin
 ```
-A superuser with the username admin is already available for login.
+A superuser with the username admin and passwod adminpassword is already available for login.
 
 ## (Optional) 6. Create Super User
 To create a superuser, temporarily disable email sending.
