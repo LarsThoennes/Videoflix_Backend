@@ -12,7 +12,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
 from django.middleware.csrf import get_token
 from .serializers import RegistrationSerializer, CustomTokenObtainSerializer, PasswordConfirmSerializer
-from ..services.email_service import send_reset_password_email
+from ..services.email_service import send_reset_password_email, send_activation_email
 
         
 class RegistrationView(APIView):
@@ -35,6 +35,13 @@ class RegistrationView(APIView):
                 saved_account = serializer.save()
                 saved_account.is_active = False
                 saved_account.save()
+
+                def send_email():
+                    uidb64 = urlsafe_base64_encode(force_bytes(saved_account.pk))
+                    token = default_token_generator.make_token(saved_account)
+                    send_activation_email(saved_account, token, uidb64)
+
+                transaction.on_commit(send_email)
 
             return Response(
                 {
