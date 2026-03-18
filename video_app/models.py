@@ -19,14 +19,12 @@ class Video(models.Model):
 
     thumbnail_url = models.ImageField(
         upload_to=thumbnail_upload_path,
-        null=True,
-        blank=True
+        null=True
     )
 
     original_file = models.FileField(
         upload_to=video_upload_path,
-        null=True,
-        blank=True
+        null=True
     )
 
     def clean(self):
