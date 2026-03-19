@@ -39,56 +39,12 @@ Copy the template .env.template to .env and fill in your own parameters:
 ```bash
 cp .env.template .env
 ```
-## 3. Python Virtual Environment (if not using Docker)
 
-## 3.1. Create a virtual environment
-```bash
-python -m venv venv
-```
-## 3.2 Activate the environment
-
-## macOS/Linux
-```bash
-source venv/bin/activate
-```
-## Windows
-```bash
-venv\Scripts\activate
-```
-## 4. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-## 5. Create migrations
-```bash
-python manage.py makemigrations
-```
-## 6. Apply migrations
-```bash
-python manage.py migrate
-```
-## 7. (Optional) Create a superuser for the admin panel
-```bash
-python manage.py createsuperuser
-```
-
-# Running the Server (Without Docker)
-
-## 1. Run the Development Server
-```bash
-python manage.py runserver
-```
-## The server will start at:
-```bash
-http://127.0.0.1:8000/
-```
-# Running the Server (with Docker)
-
-## 1. Build Docker images
+## 3. Build Docker images
 ```bash
 docker-compose build
 ```
-## 2. Start the services
+## 4. Start the services
 ```bash
 docker-compose up
 ```
@@ -100,36 +56,26 @@ This will start:
 ```bash
 http://127.0.0.1:8000/
 ```
-## 3. Apply migrations inside the container
+## 5. Apply migrations inside the container
 ```bash
 docker-compose exec web python manage.py makemmigrations
 ```
-## 4. Apply migrations inside the container
+## 6. Apply migrations inside the container
 ```bash
 docker-compose exec web python manage.py migrate
 ```
 
-## 5. Access the Django Admin Panel
+## 7. Access the Django Admin Panel
 You can open the admin interface at:
 ```bash
 http://127.0.0.1:8000/admin
 ```
 A superuser with the username admin and passwod adminpassword is already available for login.
 
-## (Optional) 6. Create Super User
-To create a superuser, temporarily disable email sending.
-Set the environment variable DISABLE_EMAIL in your .env file to:
-```.env
-DISABLE_EMAIL=True
-```
-This prevents the activation email from being sent when the superuser is created.
-Then run:
+## (Optional) 8. Create Super User
+
 ```bash
 docker-compose exec web python manage.py createsuperuser
-```
-After the superuser has been created, you can set the variable back to:
-```.env
-DISABLE_EMAIL=False
 ```
 
 
