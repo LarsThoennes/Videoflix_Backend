@@ -210,4 +210,5 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # -----------------------------
 SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000")
 CORS_ALLOW_ALL_ORIGINS = os.environ.get("CORS_ALLOW_ALL_ORIGINS", "False") == "True"
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
 CORS_ALLOW_CREDENTIALS = os.environ.get("CORS_ALLOW_CREDENTIALS", "False") == "True"
